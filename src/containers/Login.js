@@ -1,7 +1,8 @@
 import React, {Component} from "react"
-import {Button, FormGroup, FormControl, FormLabel} from "react-bootstrap"
+import {Button, Form} from "react-bootstrap"
 import "./Login.css"
 import {LinkContainer} from "react-router-bootstrap"
+import {Redirect} from 'react-router'
 export default class Login extends Component
 {
 	constructor(props)
@@ -10,7 +11,8 @@ export default class Login extends Component
 
 		this.state = {
 			email: "",
-			password: ""
+			password: "",
+			redirect:false
 		};
 	}
 	validateForm()
@@ -18,47 +20,56 @@ export default class Login extends Component
 		return (this.state.email.length > 0) && (this.state.password.length > 0);
 	}
 	handleChange = event => {
+		console.log(event)
 		this.setState({
 			[event.target.id]: event.target.value
 		});
 	}
 	handleSubmit = event => {
-		event.preventDefault();
+		//	event.preventDefault();
+		//TODO(Levi): DATABASE CALLS to log in
+		this.props.hasAuthenticated(true);
+		if(true)
+		{
+			this.setState({redirect:true})
+		}
 	}
 	render() {
-
+		if(this.state.redirect)
+			return (
+				<Redirect push to="/contacts"/>
+			)
 		return (
 			<div className="Login">
-				<form onSubmit={this.handleSumbit}>
-					<FormGroup controlId = "email" bsSize ="large">
-						<FormLabel>Email</FormLabel>
+				<Form onSubmit={this.handleSumbit}>
+					<Form.Group controlId = "email" bize ="large">
+						<Form.Label>Email</Form.Label>
 
-						<FormControl
+						<Form.Control
 							autoFocus
 							type = "email"
 							value = {this.state.email}
 							onChange = {this.handleChange}
 						/>
-					</FormGroup>
-					<FormGroup controlId = "password" bsSize = "large">
-						<FormLabel>Password</FormLabel>
-						<FormControl
+					</Form.Group>
+					<Form.Group controlId = "password" bssize = "large">
+						<Form.Label>Password</Form.Label>
+						<Form.Control
 							value = {this.state.password}
 							onChange = {this.handleChange}
 							type = "password"
 						/>
-					</FormGroup>
-						<LinkContainer to = "contacts">
+					</Form.Group>
 						<Button
 						block
-						bsSize = "large"
+						bssize = "large"
 						disabled = {!this.validateForm()}
 						type = "submit"
+						onClick ={this.handleSubmit}
 					>
 					Login
 					</Button>
-					</LinkContainer>
-				</form>
+				</Form>
 			</div>
 		);
 	}
