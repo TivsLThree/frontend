@@ -42,6 +42,7 @@ class Contact extends Component {
 	{
 		return (
 			<div>
+			<h1> Contacts </h1>
 				<SearchBar
 					search={this.search}/>
 				<NewContact
