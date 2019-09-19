@@ -29,6 +29,15 @@ class Contact extends Component {
 		});
 				console.log(this.state.contacts)
 	}
+	editContact = (c) => {
+				console.log(this.state.contacts)
+		//TODO(Levi) Make database call to edit the contact:
+		const index = this.state.contacts.map((e) => { return e.key;}).indexOf(c.key);
+		const copy = this.state.contacts.slice();
+		copy[index] = c;
+		this.setState({contacts:copy})
+		console.log(this.state.contacts)
+	}
 	onDelete = (c) => {
 		//TODO(Levi): Make actual database call to delete contact
 		this.setState({contacts:
@@ -50,7 +59,8 @@ class Contact extends Component {
 				<ContactTable
 					contacts = {this.state.contacts}
 					searchText = {this.state.searchText}
-					onDelete = {this.onDelete}/>
+					onDelete = {this.onDelete}
+					editContact = {this.editContact}/>
 			</div>
 		);
 	}
@@ -59,33 +69,85 @@ class ContactRow extends Component {
 	constructor (props){
 		super(props)
 		this.onDelete = this.onDelete.bind(this);
+		this.state = {
+			isEdit: false,
+			name: this.props.contact.name,
+			phone: this.props.contact.phone,
+			email: this.props.contact.email
+		}
 	}
-	onDelete() {
+	onDelete = ()=> {
 		this.props.onDelete(this.props.contact);
 	}
-	onModify() {
-		console.log("Modify clicked!");
+	onModify = () =>  {
+		if(this.state.isEdit)
+		{
+			let contact = {
+				key:this.props.contact.key,
+				name: this.state.name,
+				phone: this.state.phone,
+				email: this.state.email
+			}
+			this.props.editContact(contact);
+		}
+		this.setState({isEdit:!this.state.isEdit});
 	}
-	onFavorite() {
-		console.log("Favorite clicked!");
+	editData = (e) => {
+		this.setState({
+			[e.target.name]:e.target.value
+		})
 	}
-	render() {
+ 	render() {
+		let editButton;
+		if(!this.state.isEdit)
+		{
+			editButton =	(
+				<Dropdown title = "⚙️" variant = "outline-primary">
+					<div className="d-flex flex-column">
+						 <Button variant="danger" onClick={this.onDelete} block><span aria-label="police">Delete?</span></Button>
+						 <Button variant="warning" onClick={this.onModify} block>Edit</Button>
+					</div>
+				</Dropdown>
+			)
+		}
+		else
+		{
+			editButton =
+			<Button variant="success" onClick={this.onModify} >Save Changes</Button>
+		}
+
 		return (
 			<tr>
 				<td>
-					{this.props.contact.name} </td>
+					<input
+						disabled = {!this.state.isEdit}
+						name="name"
+						type = "text"
+						class ="form-control"
+						value =	{!this.state.isEdit ? this.props.contact.name : this.state.name}
+						onChange = {this.editData}/>
+				</td>
 				<td>
-					{this.props.contact.phone} </td>
+					<input
+						disabled = {!this.state.isEdit}
+						name="phone"
+						type = "text"
+						class = "form-control"
+						value =	{!this.state.isEdit ? this.props.contact.phone : this.state.phone}
+						onChange = {this.editData}/>
+				</td>
 					{/*TODO(Levi): Find out how format as phone number*/}
 				<td>
-					{this.props.contact.email} </td>
+					<input
+						disabled = {!this.state.isEdit}
+						name="email"
+						type = "text"
+						class ="form-control"
+						value =	{!this.state.isEdit ? this.props.contact.email : this.state.email}
+						onChange = {this.editData}/>
+				</td>
 				<td>
-				<Dropdown title = "🔨 Delete" variant = "danger">
-					<div className="d-flex flex-column">
-						 <Button variant="danger" onClick={this.onDelete} block><span aria-label="police">👮 Really really delete? 👮</span></Button>
-					{	/* <Button variant="success" onClick={this.onModify} block>Modify</Button> */}
-					</div>
-				</Dropdown>
+				{editButton}
 				</td>
 			</tr>
 		)
@@ -109,7 +171,8 @@ class ContactTable extends Component {
 						<ContactRow
 							key = {contact.key}
 							contact ={contact}
-							onDelete= {this.props.onDelete}/>
+							onDelete= {this.props.onDelete}
+							editContact={this.props.editContact}/>
 						)
 			}
 		)
